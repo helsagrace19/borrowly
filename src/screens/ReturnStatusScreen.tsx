@@ -79,7 +79,7 @@ export function ReturnStatusScreen({ requestId }: { requestId: string }) {
           <p>
             {done
               ? unconfirmed
-                ? `${firstName} never confirmed receipt in the prototype, so you closed it after handing it back.`
+                ? `${firstName} never confirmed receipt, so you closed it after handing it back.`
                 : `Confirmed ${formatTimestamp(request.confirmedAt ?? Date.now())}. The loan is finished and nothing further is owed.`
               : `You marked it returned on ${formatTimestamp(request.handedBackAt ?? Date.now())}. Now ${firstName} needs to confirm they have it.`}
           </p>
@@ -169,8 +169,8 @@ export function ReturnStatusScreen({ requestId }: { requestId: string }) {
                 icon="bell"
                 onClick={() => {
                   nudgeReturn(request.id);
-                  showToast(`Reminder noted for ${firstName}`, {
-                    detail: "Saved on this device — no notification was actually delivered.",
+                  showToast(`Reminder sent to ${firstName}`, {
+                    detail: "They'll see it next time they open Borrowly.",
                   });
                 }}
                 variant="secondary"

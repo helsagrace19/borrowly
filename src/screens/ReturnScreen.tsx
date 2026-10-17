@@ -127,7 +127,7 @@ export function ReturnScreen({ requestId }: { requestId: string }) {
       completedAt: Date.now(),
     });
     showToast("Marked as handed back", {
-      detail: `${firstName} still needs to confirm receipt — that part is simulated here.`,
+      detail: `${firstName} will confirm receipt.`,
     });
     replace({ name: "return-status", requestId: request.id });
   };

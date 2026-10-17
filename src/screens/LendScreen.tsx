@@ -152,7 +152,7 @@ export function LendScreen({ itemId }: { itemId?: string }) {
 
     if (existing) {
       updateListing(existing.id, draft);
-      showToast("Listing updated", { detail: "Your changes are saved on this device." });
+      showToast("Listing updated");
       replace({ name: "my-listings" });
       return;
     }
@@ -814,9 +814,9 @@ export function LendScreen({ itemId }: { itemId?: string }) {
               ) : null}
             </div>
 
-            <Notice icon="info" title="Publishing saves to this device">
-              Listings live in your browser. Nothing is uploaded, and no payment is taken — fees and
-              deposits are agreed directly with the borrower.
+            <Notice icon="info" title="How you get paid">
+              Borrowers pay the fee and any deposit directly to you at handoff. Borrowly does not
+              take a cut.
             </Notice>
           </>
         ) : null}

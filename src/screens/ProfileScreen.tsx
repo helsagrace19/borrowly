@@ -10,7 +10,7 @@ import { useNow } from "../lib/useNow";
 import { useNavigation } from "../state/navigation";
 import { useBorrowly } from "../state/store";
 
-export function ProfileScreen({ onOpenControls }: { onOpenControls: () => void }) {
+export function ProfileScreen() {
   const { push } = useNavigation();
   const { requests, myListings, incomingRequestsFor } = useBorrowly();
   const now = useNow();
@@ -109,20 +109,6 @@ export function ProfileScreen({ onOpenControls }: { onOpenControls: () => void }
             ))}
           </ul>
         </section>
-
-        <Notice icon="info" title="About this prototype">
-          <ul className="truth-list">
-            <li>Your listings, requests and messages are saved in this browser only.</li>
-            <li>Approvals, replies and return confirmations are simulated, in both directions.</li>
-            <li>No accounts, payments, notifications or identity checks are implemented.</li>
-          </ul>
-        </Notice>
-
-        <div className="stacked-actions">
-          <Button icon="filter" onClick={onOpenControls} variant="secondary">
-            Open prototype controls
-          </Button>
-        </div>
 
         <p className="footer-note">
           <Icon name="shield" size={14} />

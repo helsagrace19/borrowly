@@ -1,7 +1,4 @@
-import { useState } from "react";
-
 import { DeviceFrame } from "./components/AppShell";
-import { PrototypePanel } from "./components/PrototypePanel";
 import { ToastHost } from "./components/ToastHost";
 import { BorrowingScreen } from "./screens/BorrowingScreen";
 import { ConfirmationScreen } from "./screens/ConfirmationScreen";
@@ -20,7 +17,7 @@ import { NavigationProvider, useNavigation } from "./state/navigation";
 import { BorrowlyProvider } from "./state/store";
 import { ToastProvider } from "./state/toast";
 
-function Routes({ onOpenControls }: { onOpenControls: () => void }) {
+function Routes() {
   const { route } = useNavigation();
 
   switch (route.name) {
@@ -33,7 +30,7 @@ function Routes({ onOpenControls }: { onOpenControls: () => void }) {
     case "confirmation":
       return <ConfirmationScreen requestId={route.requestId} />;
     case "borrowing":
-      return <BorrowingScreen onOpenControls={onOpenControls} tab={route.tab} />;
+      return <BorrowingScreen tab={route.tab} />;
     case "return":
       return <ReturnScreen requestId={route.requestId} />;
     case "return-status":
@@ -45,26 +42,22 @@ function Routes({ onOpenControls }: { onOpenControls: () => void }) {
         <ThreadScreen itemId={route.itemId} ownerId={route.ownerId} requestId={route.requestId} />
       );
     case "profile":
-      return <ProfileScreen onOpenControls={onOpenControls} />;
+      return <ProfileScreen />;
     case "lend":
       return <LendScreen itemId={route.itemId} />;
     case "listing-published":
       return <ListingPublishedScreen itemId={route.itemId} />;
     case "my-listings":
-      return <MyListingsScreen onOpenControls={onOpenControls} />;
+      return <MyListingsScreen />;
     default:
       return <DiscoverScreen />;
   }
 }
 
 function Shell() {
-  const [controlsOpen, setControlsOpen] = useState(false);
-  const openControls = () => setControlsOpen(true);
-
   return (
     <DeviceFrame>
-      <Routes onOpenControls={openControls} />
-      <PrototypePanel onClose={() => setControlsOpen(false)} open={controlsOpen} />
+      <Routes />
       <ToastHost />
     </DeviceFrame>
   );

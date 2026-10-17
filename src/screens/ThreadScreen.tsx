@@ -5,12 +5,10 @@ import { Avatar } from "../components/Avatar";
 import { IconButton } from "../components/Button";
 import { EmptyState } from "../components/EmptyState";
 import { Icon } from "../components/Icon";
-import { Notice } from "../components/Layout";
 import { getOwner } from "../data/catalogue";
 import { formatTimestamp } from "../lib/dates";
 import { useNavigation } from "../state/navigation";
 import { useBorrowly } from "../state/store";
-import { useToast } from "../state/toast";
 
 export function ThreadScreen({
   ownerId,
@@ -22,8 +20,7 @@ export function ThreadScreen({
   requestId: string | null;
 }) {
   const { back, push } = useNavigation();
-  const { conversationFor, sendMessage, simulateReply, markThreadRead, itemById } = useBorrowly();
-  const { showToast } = useToast();
+  const { conversationFor, sendMessage, markThreadRead, itemById } = useBorrowly();
   const [draft, setDraft] = useState("");
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -89,10 +86,7 @@ export function ThreadScreen({
           <div className={`bubble-row ${message.from === "me" ? "mine" : "theirs"}`} key={message.id}>
             <div className="bubble">
               <p>{message.body}</p>
-              <span className="bubble-meta">
-                {formatTimestamp(message.at)}
-                {message.simulated ? <em> · simulated reply</em> : null}
-              </span>
+              <span className="bubble-meta">{formatTimestamp(message.at)}</span>
             </div>
           </div>
         ))}
@@ -111,11 +105,6 @@ export function ThreadScreen({
       </div>
 
       <div className="composer">
-        <Notice icon="info" tone="coral">
-          Nothing is delivered. Messages are saved in this browser, and {firstName} will never see
-          them.
-        </Notice>
-
         <div className="composer-row">
           <label className="visually-hidden" htmlFor="thread-message">
             Message {firstName}
@@ -134,22 +123,6 @@ export function ThreadScreen({
             value={draft}
           />
           <IconButton disabled={!draft.trim()} label="Send message" name="send" onClick={send} size={19} />
-        </div>
-
-        <div className="composer-actions">
-          <button
-            className="proto-inline-button"
-            onClick={() => {
-              simulateReply(ownerId, itemId);
-              showToast(`Simulated a reply from ${firstName}`, {
-                detail: "Prototype only — no message came from a real person.",
-              });
-            }}
-            type="button"
-          >
-            <Icon name="sparkle" size={15} />
-            Simulate a reply from {firstName}
-          </button>
         </div>
       </div>
     </Screen>

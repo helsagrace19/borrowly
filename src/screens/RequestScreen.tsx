@@ -262,9 +262,7 @@ export function RequestScreen({ itemId }: { itemId: string }) {
 
       <StickyAction>
         <div className="action-summary">
-          <span>
-            {cost.totalBeforeHandoff > 0 ? "Before handoff" : "Saved on this device only"}
-          </span>
+          <span>{cost.totalBeforeHandoff > 0 ? "Before handoff" : "No payment needed"}</span>
           <strong>
             {cost.totalBeforeHandoff > 0
               ? formatNaira(cost.totalBeforeHandoff)

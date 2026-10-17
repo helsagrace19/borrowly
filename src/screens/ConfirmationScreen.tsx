@@ -5,7 +5,7 @@ import { Button } from "../components/Button";
 import { EmptyState } from "../components/EmptyState";
 import { Icon } from "../components/Icon";
 import { ItemImage } from "../components/ItemImage";
-import { Notice, SectionHeading } from "../components/Layout";
+import { SectionHeading } from "../components/Layout";
 import { PriceBreakdown } from "../components/Price";
 import { Pill } from "../components/Pill";
 import { getOwner } from "../data/catalogue";
@@ -46,7 +46,7 @@ export function ConfirmationScreen({ requestId }: { requestId: string }) {
   const handleCancel = () => {
     cancelRequest(request.id);
     showToast("Request cancelled", {
-      detail: `${firstName} was never notified — this prototype keeps everything on your device.`,
+      detail: `${firstName} will see that you withdrew it.`,
     });
     goToTab({ name: "borrowing", tab: "requests" });
   };
@@ -151,11 +151,6 @@ export function ConfirmationScreen({ requestId }: { requestId: string }) {
                   </li>
                 </ol>
               </div>
-
-              <Notice icon="info" tone="coral" title="Nothing left your device">
-                This is a front-end prototype, so {firstName} has not actually been notified. Use
-                the prototype controls to step through their reply.
-              </Notice>
 
               <div className="stacked-actions">
                 <Button

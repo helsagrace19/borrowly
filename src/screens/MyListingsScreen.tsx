@@ -28,7 +28,7 @@ const STATUS_TONE: Record<ListingStatus, "available" | "warning" | "neutral" | "
   paused: "neutral",
 };
 
-export function MyListingsScreen({ onOpenControls }: { onOpenControls: () => void }) {
+export function MyListingsScreen() {
   const { back, push, goToTab, canGoBack } = useNavigation();
   const {
     myListings,
@@ -59,7 +59,7 @@ export function MyListingsScreen({ onOpenControls }: { onOpenControls: () => voi
     <Screen>
       <TopBar
         action={
-          <button className="proto-button" onClick={() => push({ name: "lend" })} type="button">
+          <button className="bar-button" onClick={() => push({ name: "lend" })} type="button">
             <Icon name="plus" size={15} />
             Lend
           </button>
@@ -171,11 +171,6 @@ export function MyListingsScreen({ onOpenControls }: { onOpenControls: () => voi
                 />
               ))}
             </div>
-
-            <button className="proto-inline-button" onClick={onOpenControls} type="button">
-              <Icon name="sparkle" size={15} />
-              Simulate a neighbour asking to borrow
-            </button>
           </>
         )}
       </ScreenBody>
@@ -271,7 +266,7 @@ function ListingRow({
 
       {pending.length > 0 ? (
         <div className="incoming-block">
-          <SectionHeading subtitle="Simulated — no real person asked" title="Waiting on you" />
+          <SectionHeading subtitle="Approve or decline to reserve your dates" title="Waiting on you" />
           {pending.map((request) => {
             const ask = costForRange(item, request.startDate, request.returnDate);
             return (

@@ -68,9 +68,7 @@ export function ExtensionSheet({ open, onClose, request, blocked }: ExtensionShe
     }
     setError(null);
     requestExtension(request.id, newDate, reason.trim());
-    showToast(`Asked ${firstName} to keep it longer`, {
-      detail: "Simulated locally — nothing was sent to a real person.",
-    });
+    showToast(`Asked ${firstName} to keep it longer`);
     onClose();
   };
 
@@ -249,7 +247,7 @@ export function IssueSheet({ open, onClose, request }: IssueSheetProps) {
           icon="flag"
           onClick={() => {
             reportIssue(request.id, { reportedAt: Date.now(), kind, note: note.trim() });
-            showToast("Problem noted", { detail: "Saved on this device so it is not forgotten." });
+            showToast("Problem noted", { detail: "We'll keep this with the borrowing." });
             onClose();
           }}
           variant="secondary"

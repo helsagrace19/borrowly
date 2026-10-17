@@ -148,7 +148,7 @@ p {
 }
 
 .screen-body.padded {
-  padding: 0 20px 26px;
+  padding: 0 20px 32px;
 }
 
 .screen-body.padded > * {
@@ -323,22 +323,21 @@ p {
   width: 8px;
 }
 
-.proto-button {
+.bar-button {
   align-items: center;
-  background: transparent;
-  border: 1px dashed var(--line-strong);
+  background: var(--paper-light);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
-  color: var(--ink-faint);
+  color: var(--ink);
   display: inline-flex;
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 600;
-  gap: 5px;
-  padding: 6px 10px;
+  gap: 6px;
+  padding: 7px 12px;
 }
 
-.proto-button:hover {
-  border-color: var(--coral);
-  color: var(--coral-deep);
+.bar-button:hover {
+  border-color: var(--ink-soft);
 }
 
 .bottom-nav {
@@ -409,8 +408,8 @@ p {
   display: flex;
   flex: 0 0 auto;
   flex-direction: column;
-  gap: 9px;
-  padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+  gap: 10px;
+  padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
   z-index: 5;
 }
 
@@ -545,24 +544,6 @@ p {
   padding: 4px 0;
 }
 
-.proto-inline-button {
-  align-items: center;
-  background: transparent;
-  border: 1px dashed var(--line-strong);
-  border-radius: 999px;
-  color: var(--ink-faint);
-  display: inline-flex;
-  font-size: 11.5px;
-  font-weight: 600;
-  gap: 6px;
-  padding: 6px 11px;
-}
-
-.proto-inline-button:hover {
-  border-color: var(--coral);
-  color: var(--coral-deep);
-}
-
 /* ------------------------------------------------------- focused states -- */
 
 :where(button, a, input, textarea, [tabindex]):focus-visible {
@@ -633,7 +614,7 @@ p {
   align-items: flex-end;
   display: flex;
   justify-content: space-between;
-  margin: 20px 0 10px;
+  margin: 24px 0 12px;
 }
 
 .section-heading strong {
@@ -823,19 +804,6 @@ textarea:focus {
 }
 
 /* ----------------------------------------------------------- collections -- */
-
-.chip-row {
-  display: flex;
-  gap: 8px;
-  margin: 16px -20px 0;
-  overflow-x: auto;
-  padding: 2px 20px 6px;
-  scrollbar-width: none;
-}
-
-.chip-row::-webkit-scrollbar {
-  display: none;
-}
 
 .chip {
   background: var(--paper-light);
@@ -1122,8 +1090,8 @@ textarea:focus {
   font-size: 13px;
   gap: 11px;
   line-height: 1.5;
-  margin-top: 14px;
-  padding: 13px 14px;
+  margin-top: 16px;
+  padding: 14px 15px;
 }
 
 .notice > svg {
@@ -1888,7 +1856,7 @@ textarea:focus {
 }
 
 .loan-card {
-  padding: 14px;
+  padding: 16px;
 }
 
 .loan-card.muted {
@@ -2833,57 +2801,6 @@ textarea:focus {
   line-height: 1.5;
 }
 
-/* --------------------------------------------------------- prototype ------ */
-
-.prototype-intro {
-  align-items: flex-start;
-  background: var(--coral-soft);
-  border-radius: var(--radius-lg);
-  color: #8a4a38;
-  display: flex;
-  font-size: 12.5px;
-  gap: 11px;
-  line-height: 1.55;
-  padding: 14px;
-}
-
-.prototype-intro > svg {
-  flex: 0 0 auto;
-  margin-top: 2px;
-}
-
-.prototype-block {
-  border-top: 1px solid var(--line);
-  margin-top: 18px;
-  padding-top: 16px;
-}
-
-.prototype-block:first-of-type {
-  border-top: 0;
-  margin-top: 16px;
-}
-
-.prototype-block h3 {
-  font-size: 14.5px;
-  font-weight: 700;
-  line-height: 1.35;
-}
-
-.prototype-block .muted-copy {
-  margin-top: 5px;
-}
-
-.prototype-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-  margin-top: 13px;
-}
-
-.danger-block h3 {
-  color: var(--coral-deep);
-}
-
 /* ---------------------------------------------------------------- toast --- */
 
 .toast-host {
@@ -3251,12 +3168,17 @@ textarea:focus {
   border: 1px solid var(--line);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-card);
-  padding: 14px;
+  padding: 16px;
 }
 
 .listing-card.status-paused {
   background: var(--paper);
   box-shadow: none;
+}
+
+/* Breathing room under a description before its actions. */
+.listing-card > .plain-link {
+  margin-top: 10px;
 }
 
 .listing-head {
@@ -3309,7 +3231,7 @@ textarea:focus {
   display: flex;
   flex-direction: column;
   gap: 9px;
-  margin-top: 14px;
+  margin-top: 16px;
 }
 
 .listing-actions-row {
@@ -3333,8 +3255,8 @@ textarea:focus {
   color: var(--muted);
   font-size: 12.5px;
   line-height: 1.5;
-  margin-top: 12px;
-  padding-top: 11px;
+  margin-top: 16px;
+  padding-top: 13px;
 }
 
 .incoming-block {
@@ -3694,17 +3616,14 @@ textarea:focus {
   margin-top: 4px;
 }
 
+/* --------------------------------------------------- discovery filters --- */
+
+/* Wraps instead of scrolling: no pill is ever cut off at the edge. */
 .filter-scroll {
   display: flex;
-  gap: 8px;
-  margin: 12px -20px 0;
-  overflow-x: auto;
-  padding: 2px 20px 4px;
-  scrollbar-width: none;
-}
-
-.filter-scroll::-webkit-scrollbar {
-  display: none;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 14px;
 }
 
 .filter-pill {
@@ -3714,11 +3633,11 @@ textarea:focus {
   border-radius: 999px;
   color: var(--ink-soft);
   display: inline-flex;
-  flex: 0 0 auto;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
-  gap: 6px;
-  padding: 8px 12px;
+  gap: 5px;
+  min-height: 34px;
+  padding: 0 11px;
 }
 
 .filter-pill.selected {
@@ -3783,7 +3702,7 @@ textarea:focus {
   display: flex;
   gap: 10px;
   justify-content: space-between;
-  margin: 18px 0 12px;
+  margin: 20px 0 14px;
 }
 
 .results-bar strong {
@@ -3890,8 +3809,8 @@ textarea:focus {
 .tile-body {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding: 9px 10px 11px;
+  gap: 4px;
+  padding: 10px 11px 12px;
 }
 
 .tile-price {
@@ -3984,17 +3903,9 @@ textarea:focus {
   }
 }
 
-
 @media (max-width: 360px) {
   .screen-body.padded,
   .tab-body {
-    padding-left: 15px;
-    padding-right: 15px;
-  }
-
-  .chip-row {
-    margin-left: -15px;
-    margin-right: -15px;
     padding-left: 15px;
     padding-right: 15px;
   }

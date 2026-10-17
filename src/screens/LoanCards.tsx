@@ -182,7 +182,7 @@ export function PendingCard({ request }: { request: BorrowRequest }) {
       </div>
 
       <p className="muted-copy">
-        {firstName} hasn't replied yet. You can play their reply from the prototype controls.
+        {firstName} hasn't replied yet. Most neighbours answer within a few hours.
       </p>
 
       <div className="card-actions">
@@ -562,8 +562,7 @@ export function HistoryCard({ request }: { request: BorrowRequest }) {
 
       {unconfirmed ? (
         <Notice icon="help" tone="warning" title="No confirmation received">
-          You closed this on your side after handing it back. {owner.name} never confirmed receipt
-          in the prototype.
+          You closed this on your side after handing it back. {owner.name} didn't confirm receipt.
         </Notice>
       ) : null}
 

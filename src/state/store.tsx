@@ -5,6 +5,7 @@ import {
   useEffect,
   useMemo,
   useReducer,
+  useRef,
   useState,
 } from "react";
 import type { ReactNode } from "react";
@@ -662,6 +663,60 @@ export function BorrowlyProvider({ children }: { children: ReactNode }) {
     [state.listings],
   );
 
+  /**
+   * The other side of a request answers on its own after a short pause, so the
+   * full journey works in a single-account build without any demo controls in
+   * the interface. Each transition happens once.
+   */
+  const settled = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    const tick = () => {
+      const now = Date.now();
+
+      state.requests.forEach((request) => {
+        if (request.direction !== "outgoing") return;
+
+        const once = (key: string) => {
+          if (settled.current.has(key)) return false;
+          settled.current.add(key);
+          return true;
+        };
+
+        if (request.status === "pending" && now - request.createdAt > 8000) {
+          if (once(`${request.id}:approved`)) {
+            dispatch({ type: "request/simulate-approve", id: request.id, at: now });
+          }
+          return;
+        }
+
+        if (request.extension?.status === "pending" && now - request.extension.requestedAt > 8000) {
+          if (once(`${request.id}:extension`)) {
+            dispatch({
+              type: "request/simulate-extension",
+              id: request.id,
+              decision: "approved",
+              at: now,
+            });
+          }
+        }
+
+        if (
+          request.handedBackAt &&
+          !request.confirmedAt &&
+          !request.resolvedWithoutConfirmationAt &&
+          now - request.handedBackAt > 9000
+        ) {
+          if (once(`${request.id}:confirmed`)) {
+            dispatch({ type: "request/simulate-confirm", id: request.id, at: now });
+          }
+        }
+      });
+    };
+
+    tick();
+    const interval = window.setInterval(tick, 2000);
+    return () => window.clearInterval(interval);
+  }, [state.requests]);
   const itemById = useCallback((id: string) => findItem(state, id), [state]);
 
   const incomingRequestsFor = useCallback(

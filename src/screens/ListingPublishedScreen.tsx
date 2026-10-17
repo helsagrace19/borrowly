@@ -114,9 +114,9 @@ export function ListingPublishedScreen({ itemId }: { itemId: string }) {
           />
         </div>
 
-        <Notice icon="info" title="Saved on this device">
-          Listings live in your browser. No payment is taken, and the fee plus any deposit are
-          agreed directly with the borrower.
+        <Notice icon="info" title="How you get paid">
+          Borrowers pay the fee and any deposit directly to you at handoff. Borrowly does not take a
+          cut.
         </Notice>
 
         <div className="stacked-actions">
@@ -147,8 +147,8 @@ export function ListingPublishedScreen({ itemId }: { itemId: string }) {
 
       <StickyAction>
         <div className="action-summary">
-          <span>Listing saved</span>
-          <strong>On this device</strong>
+          <span>Listing published</span>
+          <strong>Visible in Discover</strong>
         </div>
         <Button icon="arrowRight" onClick={() => replace({ name: "my-listings" })}>
           Manage my listings

@@ -3,7 +3,6 @@ import { Avatar } from "../components/Avatar";
 import { Button } from "../components/Button";
 import { EmptyState } from "../components/EmptyState";
 import { Icon } from "../components/Icon";
-import { Notice } from "../components/Layout";
 import { getOwner } from "../data/catalogue";
 import { formatTimestamp } from "../lib/dates";
 import { useNavigation } from "../state/navigation";
@@ -40,11 +39,6 @@ export function InboxScreen() {
           </EmptyState>
         ) : (
           <>
-            <Notice icon="info" title="Conversations on this device">
-              Borrowly has no messaging backend. Anything you type stays in this browser, and owner
-              replies are simulated.
-            </Notice>
-
             <ul className="thread-list">
               {threads.map((conversation) => {
                 const owner = getOwner(conversation.ownerId);

@@ -4,7 +4,6 @@ import { BottomNav, Screen, ScreenBody, TopBar } from "../components/AppShell";
 import { Button } from "../components/Button";
 import { EmptyState } from "../components/EmptyState";
 import { Icon } from "../components/Icon";
-import { Notice } from "../components/Layout";
 import { useNow } from "../lib/useNow";
 import { phaseOf } from "../lib/loan";
 import type { BorrowingTab } from "../state/navigation";
@@ -18,13 +17,7 @@ const TABS: { id: BorrowingTab; label: string }[] = [
   { id: "history", label: "History" },
 ];
 
-export function BorrowingScreen({
-  tab,
-  onOpenControls,
-}: {
-  tab: BorrowingTab;
-  onOpenControls: () => void;
-}) {
+export function BorrowingScreen({ tab }: { tab: BorrowingTab }) {
   const { goToTab } = useNavigation();
   const { requests, seedDemoBorrowing } = useBorrowly();
   const now = useNow();
@@ -56,15 +49,7 @@ export function BorrowingScreen({
 
   return (
     <Screen>
-      <TopBar
-        action={
-          <button className="proto-button" onClick={onOpenControls} type="button">
-            <Icon name="sparkle" size={15} />
-            Prototype
-          </button>
-        }
-        title="My borrowing"
-      />
+      <TopBar title="My borrowing" />
 
       <ScreenBody padded={false}>
         <div className="segmented" role="tablist" aria-label="Borrowing views">
@@ -157,10 +142,6 @@ export function BorrowingScreen({
                 </EmptyState>
               ) : (
                 <>
-                  <Notice icon="info">
-                    History is stored on this device only. A real build would keep it on your
-                    account.
-                  </Notice>
                   <div className="loan-list">
                     {groups.history.map((entry) => (
                       <HistoryCard key={entry.request.id} request={entry.request} />
