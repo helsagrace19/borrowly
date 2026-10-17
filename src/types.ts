@@ -252,7 +252,7 @@ export type Draft = {
 export type ItemSort = "recommended" | "price-asc" | "price-desc" | "closest" | "newest";
 
 /** One-tap narrowing chips above the grid. */
-export type QuickFilter = "all" | "free" | "paid" | "cheap" | "available";
+export type QuickFilter = "all" | "free" | "paid" | "cheap";
 
 export type DiscoverFilters = {
   query: string;
@@ -264,6 +264,8 @@ export type DiscoverFilters = {
   reach: Reach;
   sort: ItemSort;
   quick: QuickFilter;
+  /** How the results are laid out. */
+  view: "grid" | "list";
 };
 
 export type Borrower = {

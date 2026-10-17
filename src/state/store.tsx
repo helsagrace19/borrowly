@@ -638,6 +638,7 @@ export function BorrowlyProvider({ children }: { children: ReactNode }) {
     reach: defaultReach(),
     sort: "recommended",
     quick: "all",
+    view: "grid",
   });
 
   useEffect(() => {
@@ -1043,6 +1044,7 @@ export function BorrowlyProvider({ children }: { children: ReactNode }) {
       reach: defaultReach(),
       sort: "recommended",
       quick: "all",
+      view: "grid",
     });
   }, []);
 

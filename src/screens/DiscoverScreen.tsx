@@ -5,9 +5,8 @@ import { Button } from "../components/Button";
 import { Chip } from "../components/Chip";
 import { CardSkeleton, EmptyState } from "../components/EmptyState";
 import { Icon } from "../components/Icon";
-import { ItemTile } from "../components/ItemCard";
-import { LocationSheet } from "../components/LocationSheet";
-import { SectionHeading } from "../components/Layout";
+import { ItemCard, ItemTile } from "../components/ItemCard";
+import { FilterSheet } from "../components/FilterSheet";
 import { Sheet } from "../components/Sheet";
 import { activeCategories, borrower, getOwner, selfOwnerId } from "../data/catalogue";
 import { describeDue, formatShort } from "../lib/dates";
@@ -17,7 +16,7 @@ import { costForDays } from "../lib/pricing";
 import { useNow } from "../lib/useNow";
 import { useNavigation } from "../state/navigation";
 import { useBorrowly } from "../state/store";
-import type { Item, ItemSort, QuickFilter } from "../types";
+import type { Item, ItemSort } from "../types";
 
 const SORTS: { id: ItemSort; label: string; hint: string }[] = [
   { id: "recommended", label: "Recommended", hint: "Closest and ready to borrow" },
@@ -25,13 +24,6 @@ const SORTS: { id: ItemSort; label: string; hint: string }[] = [
   { id: "price-asc", label: "Price: low to high", hint: "Free listings first" },
   { id: "price-desc", label: "Price: high to low", hint: "Paid listings first" },
   { id: "newest", label: "Recently listed", hint: "Newest listings first" },
-];
-
-const QUICK: { id: QuickFilter; label: string }[] = [
-  { id: "free", label: "Free" },
-  { id: "paid", label: "Paid" },
-  { id: "cheap", label: "Under ₦1,000" },
-  { id: "available", label: "Available now" },
 ];
 
 const PAGE_SIZE = 12;
@@ -45,8 +37,8 @@ export function DiscoverScreen() {
   const { filters, setFilters, requests, conversations, allItems } = useBorrowly();
   const now = useNow();
   const [loading, setLoading] = useState(true);
-  const [locationOpen, setLocationOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [visible, setVisible] = useState(PAGE_SIZE);
 
   useEffect(() => {
@@ -93,12 +85,11 @@ export function DiscoverScreen() {
             return costForDays(item, 1).isPaid;
           case "cheap":
             return dailyFeeOf(item) < 1000;
-          case "available":
-            return item.availability === "available";
           default:
             return true;
         }
-      });
+      })
+      .filter((item) => !filters.availableOnly || item.availability === "available");
 
     const sorted = [...filtered];
     sorted.sort((a, b) => {
@@ -129,7 +120,15 @@ export function DiscoverScreen() {
   // Reset paging whenever the result set changes shape.
   useEffect(() => {
     setVisible(PAGE_SIZE);
-  }, [filters.query, filters.category, filters.quick, filters.sort, filters.area, filters.reach]);
+  }, [
+    filters.query,
+    filters.category,
+    filters.quick,
+    filters.sort,
+    filters.area,
+    filters.reach,
+    filters.availableOnly,
+  ]);
 
   const unread = conversations.reduce((total, conversation) => total + conversation.unread, 0);
 
@@ -184,42 +183,26 @@ export function DiscoverScreen() {
 
   const areaActive = filters.reach !== "any";
 
-  // Discovery rails only make sense while browsing, not while narrowing.
-  const showRails = !filtering && results.length > 6;
+  const activeFilterCount =
+    (filters.reach !== "city" ? 1 : 0) +
+    (filters.quick !== "all" ? 1 : 0) +
+    (filters.availableOnly ? 1 : 0);
 
-  const rails = useMemo(() => {
-    if (!showRails) return [];
-    const pool = inArea;
-
-    const nearby = [...pool]
-      .filter((item) => proximityRank(item, borrower.location) <= 2)
-      .sort((a, b) => proximityRank(a, borrower.location) - proximityRank(b, borrower.location))
-      .slice(0, 8);
-
-    const free = pool.filter((item) => !costForDays(item, 1).isPaid).slice(0, 8);
-
-    const cheap = pool
-      .filter((item) => costForDays(item, 1).isPaid && item.pricing.dailyFee < 1000)
-      .sort((a, b) => a.pricing.dailyFee - b.pricing.dailyFee)
-      .slice(0, 8);
-
-    const newest = [...pool]
-      .filter((item) => item.createdAt > 0)
-      .sort((a, b) => b.createdAt - a.createdAt)
-      .slice(0, 8);
-
-    return [
-      { title: "Closest to you", subtitle: "Walk to it", items: nearby },
-      { title: "Free to borrow", subtitle: "No fee", items: free },
-      { title: "Under ₦1,000 a day", subtitle: "Cheaper borrows", items: cheap },
-      { title: "Recently listed", subtitle: "New in your area", items: newest },
-    ].filter((rail) => rail.items.length >= 3);
-  }, [showRails, inArea]);
+  const clearFilters = () =>
+    setFilters({
+      area: { city: borrower.location.city, neighbourhood: null },
+      reach: "city",
+      quick: "all",
+      availableOnly: false,
+      category: "All",
+      query: "",
+      sort: "recommended",
+    });
 
   const shown = results.slice(0, visible);
   const remaining = results.length - shown.length;
 
-  const tile = (item: Item, variant: "grid" | "rail" = "grid") => {
+  const tile = (item: Item) => {
     const owner = getOwner(item.ownerId);
     return (
       <ItemTile
@@ -234,12 +217,30 @@ export function DiscoverScreen() {
         onOpen={() => push({ name: "item", itemId: item.id })}
         owner={owner}
         ours={item.ownerId === selfOwnerId}
-        variant={variant}
       />
     );
   };
 
   const activeSort = SORTS.find((entry) => entry.id === filters.sort) ?? SORTS[0];
+
+  const row = (item: Item) => {
+    const owner = getOwner(item.ownerId);
+    return (
+      <ItemCard
+        item={item}
+        key={item.id}
+        locationText={locationLine(item, owner, borrower.location)}
+        note={
+          item.availability === "unavailable"
+            ? (item.unavailableNote ?? "Not available right now")
+            : undefined
+        }
+        onOpen={() => push({ name: "item", itemId: item.id })}
+        owner={owner}
+        ours={item.ownerId === selfOwnerId}
+      />
+    );
+  };
 
   return (
     <Screen>
@@ -290,29 +291,55 @@ export function DiscoverScreen() {
         </div>
 
         <div className="filter-scroll">
-          <button className="filter-pill location" onClick={() => setLocationOpen(true)} type="button">
-            <Icon name="mapPin" size={15} />
-            {areaSummary(filters.area, filters.reach)}
+          <button className="filter-pill filters" onClick={() => setFiltersOpen(true)} type="button">
+            <Icon name="filter" size={15} />
+            Filters
+            {activeFilterCount > 0 ? <em className="filter-count">{activeFilterCount}</em> : null}
             <Icon name="chevronDown" size={13} />
           </button>
 
-          <span className="filter-divider" aria-hidden="true" />
+          {filters.reach !== "city" || filters.area.neighbourhood ? (
+            <button
+              className="filter-pill selected"
+              onClick={clearFilters}
+              type="button"
+            >
+              <Icon name="mapPin" size={14} />
+              {areaSummary(filters.area, filters.reach)}
+              <Icon name="close" size={13} />
+            </button>
+          ) : (
+            <button className="filter-pill" onClick={() => setFiltersOpen(true)} type="button">
+              <Icon name="mapPin" size={14} />
+              {areaSummary(filters.area, filters.reach)}
+            </button>
+          )}
 
-          {QUICK.map((entry) => {
-            const selected = filters.quick === entry.id;
-            return (
-              <button
-                aria-pressed={selected}
-                className={selected ? "filter-pill selected" : "filter-pill"}
-                key={entry.id}
-                onClick={() => setFilters({ quick: selected ? "all" : entry.id })}
-                type="button"
-              >
-                {selected ? <Icon name="check" size={14} /> : null}
-                {entry.label}
-              </button>
-            );
-          })}
+          {filters.quick !== "all" ? (
+            <button
+              className="filter-pill selected"
+              onClick={() => setFilters({ quick: "all" })}
+              type="button"
+            >
+              {filters.quick === "free"
+                ? "Free to borrow"
+                : filters.quick === "paid"
+                  ? "Paid only"
+                  : "Under ₦1,000 a day"}
+              <Icon name="close" size={13} />
+            </button>
+          ) : null}
+
+          {filters.availableOnly ? (
+            <button
+              className="filter-pill selected"
+              onClick={() => setFilters({ availableOnly: false })}
+              type="button"
+            >
+              Available now
+              <Icon name="close" size={13} />
+            </button>
+          ) : null}
         </div>
 
         <div className="chip-row" role="group" aria-label="Filter by category">
@@ -352,10 +379,34 @@ export function DiscoverScreen() {
             {results.length} {results.length === 1 ? "item" : "items"}
             {filtering ? " found" : " to borrow"}
           </strong>
-          <button className="sort-button" onClick={() => setSortOpen(true)} type="button">
-            <Icon name="filter" size={14} />
-            {activeSort.label}
-          </button>
+          <div className="results-tools">
+            <button className="sort-button" onClick={() => setSortOpen(true)} type="button">
+              <Icon name="filter" size={14} />
+              <span className="sort-label">{activeSort.label}</span>
+            </button>
+            <div className="view-toggle" role="group" aria-label="Layout">
+              <button
+                aria-label="Grid view"
+                aria-pressed={filters.view === "grid"}
+                className={filters.view === "grid" ? "on" : ""}
+                onClick={() => setFilters({ view: "grid" })}
+                title="Grid view"
+                type="button"
+              >
+                <Icon name="grid" size={15} />
+              </button>
+              <button
+                aria-label="List view"
+                aria-pressed={filters.view === "list"}
+                className={filters.view === "list" ? "on" : ""}
+                onClick={() => setFilters({ view: "list" })}
+                title="List view"
+                type="button"
+              >
+                <Icon name="list" size={15} />
+              </button>
+            </div>
+          </div>
         </div>
 
         {loading ? (
@@ -366,7 +417,6 @@ export function DiscoverScreen() {
             <CardSkeleton />
           </div>
         ) : null}
-
         {!loading && results.length === 0 ? (
           <EmptyState
             action={
@@ -419,20 +469,13 @@ export function DiscoverScreen() {
           </EmptyState>
         ) : null}
 
-        {rails.map((rail) => (
-          <section className="rail-section" key={rail.title}>
-            <SectionHeading subtitle={rail.subtitle} title={rail.title} />
-            <div className="rail">{rail.items.map((item) => tile(item, "rail"))}</div>
-          </section>
-        ))}
-
         {!loading && results.length > 0 ? (
-          <section className="rail-section">
-            <SectionHeading
-              subtitle={`${results.length} in ${areaSummary(filters.area, filters.reach).toLowerCase()}`}
-              title={filtering ? "Results" : "All items"}
-            />
-            <div className="item-grid">{shown.map((item) => tile(item))}</div>
+          <section>
+            {filters.view === "grid" ? (
+              <div className="item-grid">{shown.map((item) => tile(item))}</div>
+            ) : (
+              <div className="item-list">{shown.map((item) => row(item))}</div>
+            )}
 
             {remaining > 0 ? (
               <div className="load-more">
@@ -465,12 +508,15 @@ export function DiscoverScreen() {
 
       <BottomNav active="discover" />
 
-      <LocationSheet
+      <FilterSheet
         area={filters.area}
-        matchCount={inArea.length}
-        onApply={(area, reach) => setFilters({ area, reach })}
-        onClose={() => setLocationOpen(false)}
-        open={locationOpen}
+        availableOnly={filters.availableOnly}
+        matchCount={results.length}
+        onApply={(patch) => setFilters(patch)}
+        onClear={clearFilters}
+        onClose={() => setFiltersOpen(false)}
+        open={filtersOpen}
+        quick={filters.quick}
         reach={filters.reach}
       />
 

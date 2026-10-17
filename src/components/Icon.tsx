@@ -25,10 +25,12 @@ export type IconName =
   | "edit"
   | "filter"
   | "flag"
+  | "grid"
   | "help"
   | "home"
   | "inbox"
   | "info"
+  | "list"
   | "mapPin"
   | "message"
   | "plus"
@@ -111,6 +113,21 @@ const paths: Record<IconName, ReactNode> = {
   flag: (
     <>
       <path d="M6.4 20.5V4.2h11.9l-2.5 4 2.5 4H6.4" />
+    </>
+  ),
+  grid: (
+    <>
+      <rect height="6.4" rx="1.6" width="6.4" x="4" y="4" />
+      <rect height="6.4" rx="1.6" width="6.4" x="13.6" y="4" />
+      <rect height="6.4" rx="1.6" width="6.4" x="4" y="13.6" />
+      <rect height="6.4" rx="1.6" width="6.4" x="13.6" y="13.6" />
+    </>
+  ),
+  list: (
+    <>
+      <path d="M4 6.5h16" />
+      <path d="M4 12h16" />
+      <path d="M4 17.5h16" />
     </>
   ),
   help: (

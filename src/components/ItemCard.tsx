@@ -17,7 +17,6 @@ export function ItemTile({
   onOpen,
   ours = false,
   note,
-  variant = "grid",
 }: {
   item: Item;
   owner: Owner;
@@ -25,12 +24,11 @@ export function ItemTile({
   onOpen: () => void;
   ours?: boolean;
   note?: string;
-  variant?: "grid" | "rail";
 }) {
   const { isPaid, dailyFee, depositRequired, deposit } = costForDays(item, 1);
 
   return (
-    <article className={`item-tile ${variant}`}>
+    <article className="item-tile">
       <div className="tile-media">
         <ItemImage
           alt={`${item.name} from ${owner.name}`}
