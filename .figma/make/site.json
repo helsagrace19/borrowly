@@ -1,0 +1,11 @@
+{
+  "title": "Borrowly — borrow everyday things from your neighbours",
+  "description": "Borrowly connects users to borrow everyday items from trusted neighbors, enhancing community sharing and simplifying access to tools, books, and more.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
