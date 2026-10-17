@@ -3766,6 +3766,14 @@ textarea:focus {
   text-underline-offset: 3px;
 }
 
+.option-count {
+  color: var(--ink-faint);
+  flex: 0 0 auto;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
 .field-label.static {
   cursor: default;
 }

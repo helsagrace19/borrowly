@@ -2,13 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 
 import { BottomNav, Screen, ScreenBody, TopBar } from "../components/AppShell";
 import { Button } from "../components/Button";
-import { Chip } from "../components/Chip";
 import { CardSkeleton, EmptyState } from "../components/EmptyState";
 import { Icon } from "../components/Icon";
 import { ItemCard, ItemTile } from "../components/ItemCard";
 import { FilterSheet } from "../components/FilterSheet";
+import { CategorySheet } from "../components/CategorySheet";
+import { LocationSheet } from "../components/LocationSheet";
 import { Sheet } from "../components/Sheet";
-import { activeCategories, borrower, getOwner, selfOwnerId } from "../data/catalogue";
+import { borrower, getOwner, selfOwnerId } from "../data/catalogue";
 import { describeDue, formatShort } from "../lib/dates";
 import { areaSummary, locationLine, matchesArea, proximityRank } from "../lib/location";
 import { isActivePhase, phaseLabel, phaseOf } from "../lib/loan";
@@ -16,7 +17,7 @@ import { costForDays } from "../lib/pricing";
 import { useNow } from "../lib/useNow";
 import { useNavigation } from "../state/navigation";
 import { useBorrowly } from "../state/store";
-import type { Item, ItemSort } from "../types";
+import type { Category, Item, ItemSort } from "../types";
 
 const SORTS: { id: ItemSort; label: string; hint: string }[] = [
   { id: "recommended", label: "Recommended", hint: "Closest and ready to borrow" },
@@ -39,6 +40,8 @@ export function DiscoverScreen() {
   const [loading, setLoading] = useState(true);
   const [sortOpen, setSortOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [locationOpen, setLocationOpen] = useState(false);
   const [visible, setVisible] = useState(PAGE_SIZE);
 
   useEffect(() => {
@@ -53,6 +56,16 @@ export function DiscoverScreen() {
     () => available.filter((item) => matchesArea(item, filters.area, filters.reach)),
     [available, filters.area, filters.reach],
   );
+
+  // Counts for the category sheet, based on the area rather than the
+  // current category, so the numbers do not collapse to zero.
+  const categoryCounts = useMemo(() => {
+    const counts: Partial<Record<Category, number>> = {};
+    inArea.forEach((item) => {
+      counts[item.category] = (counts[item.category] ?? 0) + 1;
+    });
+    return counts;
+  }, [inArea]);
 
   const results = useMemo(() => {
     const query = filters.query.trim().toLowerCase();
@@ -184,9 +197,11 @@ export function DiscoverScreen() {
   const areaActive = filters.reach !== "any";
 
   const activeFilterCount =
-    (filters.reach !== "city" ? 1 : 0) +
-    (filters.quick !== "all" ? 1 : 0) +
-    (filters.availableOnly ? 1 : 0);
+    (filters.quick !== "all" ? 1 : 0) + (filters.availableOnly ? 1 : 0);
+
+  const areaNarrowed = filters.reach !== "city" || Boolean(filters.area.neighbourhood);
+
+  const clearPriceFilters = () => setFilters({ quick: "all", availableOnly: false });
 
   const clearFilters = () =>
     setFilters({
@@ -298,22 +313,27 @@ export function DiscoverScreen() {
             <Icon name="chevronDown" size={13} />
           </button>
 
-          {filters.reach !== "city" || filters.area.neighbourhood ? (
-            <button
-              className="filter-pill selected"
-              onClick={clearFilters}
-              type="button"
-            >
-              <Icon name="mapPin" size={14} />
-              {areaSummary(filters.area, filters.reach)}
-              <Icon name="close" size={13} />
-            </button>
-          ) : (
-            <button className="filter-pill" onClick={() => setFiltersOpen(true)} type="button">
-              <Icon name="mapPin" size={14} />
-              {areaSummary(filters.area, filters.reach)}
-            </button>
-          )}
+          <button
+            className={
+              filters.category === "All" ? "filter-pill" : "filter-pill selected"
+            }
+            onClick={() => setCategoryOpen(true)}
+            type="button"
+          >
+            <Icon name="grid" size={14} />
+            {filters.category === "All" ? "Categories" : filters.category}
+            <Icon name="chevronDown" size={13} />
+          </button>
+
+          <button
+            className={areaNarrowed ? "filter-pill selected" : "filter-pill"}
+            onClick={() => setLocationOpen(true)}
+            type="button"
+          >
+            <Icon name="mapPin" size={14} />
+            {areaSummary(filters.area, filters.reach)}
+            <Icon name="chevronDown" size={13} />
+          </button>
 
           {filters.quick !== "all" ? (
             <button
@@ -340,21 +360,6 @@ export function DiscoverScreen() {
               <Icon name="close" size={13} />
             </button>
           ) : null}
-        </div>
-
-        <div className="chip-row" role="group" aria-label="Filter by category">
-          <Chip onClick={() => setFilters({ category: "All" })} selected={filters.category === "All"}>
-            All
-          </Chip>
-          {activeCategories.map((category) => (
-            <Chip
-              key={category}
-              onClick={() => setFilters({ category })}
-              selected={filters.category === category}
-            >
-              {category}
-            </Chip>
-          ))}
         </div>
 
         {banner ? (
@@ -432,18 +437,7 @@ export function DiscoverScreen() {
                   </Button>
                 ) : null}
                 {filtering ? (
-                  <Button
-                    onClick={() =>
-                      setFilters({
-                        query: "",
-                        category: "All",
-                        quick: "all",
-                        availableOnly: false,
-                        sort: "recommended",
-                      })
-                    }
-                    variant="secondary"
-                  >
+                  <Button onClick={clearFilters} variant="secondary">
                     Clear filters
                   </Button>
                 ) : null}
@@ -509,15 +503,31 @@ export function DiscoverScreen() {
       <BottomNav active="discover" />
 
       <FilterSheet
-        area={filters.area}
         availableOnly={filters.availableOnly}
         matchCount={results.length}
         onApply={(patch) => setFilters(patch)}
-        onClear={clearFilters}
+        onClear={clearPriceFilters}
         onClose={() => setFiltersOpen(false)}
         open={filtersOpen}
         quick={filters.quick}
+      />
+
+      <LocationSheet
+        area={filters.area}
+        matchCount={inArea.length}
+        onApply={(patch) => setFilters(patch)}
+        onClose={() => setLocationOpen(false)}
+        open={locationOpen}
         reach={filters.reach}
+      />
+
+      <CategorySheet
+        counts={categoryCounts}
+        matchCount={results.length}
+        onClose={() => setCategoryOpen(false)}
+        onSelect={(category) => setFilters({ category })}
+        open={categoryOpen}
+        value={filters.category}
       />
 
       <Sheet onClose={() => setSortOpen(false)} open={sortOpen} title="Sort by">
